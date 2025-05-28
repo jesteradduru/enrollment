@@ -30,38 +30,18 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                     ->label('Full Name')
-                     ->readOnly(),
                 TextInput::make('first_name')
                     ->label('First Name')
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
-                        self::updateFullName($set, $get)
-                    ),
+                    ->required(),
 
                 TextInput::make('middle_name')
-                    ->label('Middle Name')
-                    ->live()
-                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
-                        self::updateFullName($set, $get)
-                    ),
+                    ->label('Middle Name'),
 
                 TextInput::make('last_name')
-                    ->label('Last Name')
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
-                        self::updateFullName($set, $get)
-                    ),
+                    ->label('Last Name'),
 
                 TextInput::make('extension_name')
-                    ->label('Extension')
-                    ->live()
-                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
-                        self::updateFullName($set, $get)
-                    ),
+                    ->label('Extension'),
                 Forms\Components\Select::make('gender')->options(['male' => 'Male', 'female'=>'Female']),
                 Forms\Components\DatePicker::make('date_of_birth'),
                 Forms\Components\TextInput::make('position')
@@ -143,22 +123,6 @@ class UserResource extends Resource
             'create' => Pages\CreateUser::route('/create'),
             'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
-    }
-
-    protected static function updateFullName(callable $set, callable $get): void
-    {
-        $fullName = trim(
-            collect([
-                $get('first_name'),
-                $get('middle_name'),
-                $get('last_name'),
-                $get('extension_name'),
-            ])
-            ->filter()
-            ->implode(' ')
-        );
-
-        $set('name', $fullName);
     }
 
     public static function getEloquentQuery(): Builder
