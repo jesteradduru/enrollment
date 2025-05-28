@@ -1,0 +1,168 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\UserResource\Pages;
+use App\Filament\Resources\UserResource\RelationManagers;
+use App\Filament\Resources\UserResource\RelationManagers\ClassesRelationManager;
+use App\Filament\Resources\UserResource\RelationManagers\ClassroomsRelationManager;
+use App\Models\User;
+use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+class UserResource extends Resource
+{
+    protected static ?string $model = User::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-users';
+
+    protected static ?string $navigationGroup = 'Users';
+
+    protected static ?string $label = 'Faculty Staff';
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                     ->label('Full Name')
+                     ->readOnly(),
+                TextInput::make('first_name')
+                    ->label('First Name')
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
+                        self::updateFullName($set, $get)
+                    ),
+
+                TextInput::make('middle_name')
+                    ->label('Middle Name')
+                    ->live()
+                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
+                        self::updateFullName($set, $get)
+                    ),
+
+                TextInput::make('last_name')
+                    ->label('Last Name')
+                    ->required()
+                    ->live()
+                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
+                        self::updateFullName($set, $get)
+                    ),
+
+                TextInput::make('extension_name')
+                    ->label('Extension')
+                    ->live()
+                    ->afterStateUpdated(fn ($state, callable $set, callable $get) =>
+                        self::updateFullName($set, $get)
+                    ),
+                Forms\Components\Select::make('gender')->options(['male' => 'Male', 'female'=>'Female']),
+                Forms\Components\DatePicker::make('date_of_birth'),
+                Forms\Components\TextInput::make('position')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('address')
+                    ->maxLength(255)
+                    ->default(null),
+                Forms\Components\TextInput::make('email')
+                    ->email()
+                    ->required()
+                    ->maxLength(255),
+                TextInput::make('password')->password()->required()->visibleOn('create')->revealable(),
+                Forms\Components\TextInput::make('role')
+                    ->default('faculty')
+                    ->readOnly(),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->searchable(),
+                // Tables\Columns\TextColumn::make('first_name')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('middle_name')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('last_name')
+                //     ->searchable(),
+                // Tables\Columns\TextColumn::make('extension_name')
+                //     ->searchable(),
+                Tables\Columns\TextColumn::make('gender'),
+                Tables\Columns\TextColumn::make('date_of_birth')
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('address')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('email_verified_at')
+                    ->dateTime()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            ClassroomsRelationManager::class
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListUsers::route('/'),
+            'create' => Pages\CreateUser::route('/create'),
+            'edit' => Pages\EditUser::route('/{record}/edit'),
+        ];
+    }
+
+    protected static function updateFullName(callable $set, callable $get): void
+    {
+        $fullName = trim(
+            collect([
+                $get('first_name'),
+                $get('middle_name'),
+                $get('last_name'),
+                $get('extension_name'),
+            ])
+            ->filter()
+            ->implode(' ')
+        );
+
+        $set('name', $fullName);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('role', 'faculty');
+    }
+}
