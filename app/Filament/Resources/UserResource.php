@@ -54,7 +54,7 @@ class UserResource extends Resource
                     ->email()
                     ->required()
                     ->maxLength(255),
-                TextInput::make('password')->password()->required()->visibleOn('create')->revealable(),
+                TextInput::make('password')->password()->revealable()->dehydrated(fn ($state) => filled($state)),
                 Forms\Components\TextInput::make('role')
                     ->default('faculty')
                     ->readOnly(),
