@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\EnrollmentResource\Pages;
+namespace App\Filament\Faculty\Resources\EnrollmentResource\Pages;
 
-use App\Filament\Resources\EnrollmentResource;
+use App\Filament\Faculty\Resources\EnrollmentResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

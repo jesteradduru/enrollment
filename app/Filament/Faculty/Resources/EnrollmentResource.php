@@ -1,20 +1,17 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Faculty\Resources;
 
-use App\Filament\Resources\ClassModelResource\RelationManagers\UsersRelationManager;
-use App\Filament\Resources\EnrollmentResource\Pages;
-use App\Filament\Resources\EnrollmentResource\RelationManagers;
+use App\Filament\Faculty\Resources\EnrollmentResource\Pages;
+use App\Filament\Faculty\Resources\EnrollmentResource\RelationManagers;
 use App\Models\Enrollment;
 use App\Models\Student;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EnrollmentResource extends Resource
@@ -24,6 +21,8 @@ class EnrollmentResource extends Resource
     protected static ?string $label = 'Enrollee';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
+    protected static ?string $navigationGroup = 'Enrollment';
 
     public static function form(Form $form): Form
     {
@@ -47,9 +46,12 @@ class EnrollmentResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('classroom_id')
                     ->label('Section')
-                    ->relationship('classroom', 'display_name')
-                    ->preload()
-                    ->searchable()
+                    ->options(function(){
+                        $faculty = auth()->user();
+
+                        return $faculty->classrooms()->get()->pluck('display_name', 'id');
+                    })
+                    ->selectablePlaceholder(false)
                     ->required(),
                 Forms\Components\Select::make('school_year_id')
                     ->relationship('schoolYear', 'end_year')
@@ -76,8 +78,7 @@ class EnrollmentResource extends Resource
                 ->searchable(),
                 Tables\Columns\TextColumn::make('student.gender')->label('Gender'),
                 Tables\Columns\TextColumn::make('classroom.level.level')->label('Grade Level'),
-                Tables\Columns\TextColumn::make('classroom.name')->label('Section'),
-                Tables\Columns\TextColumn::make('classroom.faculty.name')->label('Adviser'),
+                Tables\Columns\TextColumn::make('classroom.name'),
                 Tables\Columns\TextColumn::make('schoolYear.display_name')->label('School Year'),
                 Tables\Columns\TextColumn::make('created_at')->label('Enrolled at')->date(),
             ])
@@ -102,9 +103,9 @@ class EnrollmentResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -121,8 +122,14 @@ class EnrollmentResource extends Resource
             'index' => Pages\ListEnrollments::route('/'),
             'create' => Pages\CreateEnrollment::route('/create'),
             'edit' => Pages\EditEnrollment::route('/{record}/edit'),
-            'view' => Pages\ViewEnrollment::route('/{record}/view'),
         ];
     }
 
+    public static function getEloquentQuery(): Builder
+    {
+        $faculty = auth()->user();
+        return parent::getEloquentQuery()->whereHas('classroom.faculty', function (Builder $query) use ($faculty) {
+                $query->where('faculty_id', 'like', "{$faculty->id}");
+            });
+    }
 }

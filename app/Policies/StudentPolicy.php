@@ -13,7 +13,7 @@ class StudentPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->role == 'admin' || $user->role == 'faculty';
+        return true;
     }
 
     /**
@@ -29,7 +29,7 @@ class StudentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role == 'admin';
+        return $user->role == 'faculty';
     }
 
     /**
@@ -37,15 +37,15 @@ class StudentPolicy
      */
     public function update(User $user): bool
     {
-        return $user->role == 'admin';
+        return $user->role == 'faculty';
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function deleteAny(User $user): bool
+    public function delete(User $user): bool
     {
-        return $user->role == 'admin';
+        return $user->role == 'faculty';
     }
 
 }

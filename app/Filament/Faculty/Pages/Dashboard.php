@@ -8,6 +8,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Pages\Dashboard\Concerns\HasFiltersForm;
 
 class Dashboard extends \Filament\Pages\Dashboard
@@ -23,13 +24,13 @@ class Dashboard extends \Filament\Pages\Dashboard
             Section::make('Dashboard Filters')->schema([
                 Select::make('school_year')->label('Start of School Year')->options(function(){
                     return SchoolYear::all()->pluck('start_year', 'id');
-                }),
+                })->selectablePlaceholder(false),
                 Select::make('level')->options(function()use($faculty){
                     return Level::whereIn('id', $faculty->classrooms()->get()->pluck('level_id'))->get()->pluck('level', 'id');
-                })->label('Grade Level'),
-                Select::make('section')->options(function()use($faculty){
-                    return $faculty->classrooms()->get()->pluck('name','id');
-                }),
+                })->label('Grade Level')->selectablePlaceholder(false),
+                Select::make('section')->options(function(Get $get)use($faculty){
+                    return $faculty->classrooms()->whereLike('level_id', $get('level'))->pluck('display_name', 'classroom_id');
+                })->selectablePlaceholder(false),
             ])->columns(3)
         ]);
     }

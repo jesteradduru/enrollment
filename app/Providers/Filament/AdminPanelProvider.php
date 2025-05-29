@@ -72,7 +72,8 @@ class AdminPanelProvider extends PanelProvider
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
             ])
-            ->font('Poppins');
+            ->font('Poppins')
+            ->breadcrumbs(false)
             ;
     }
 }

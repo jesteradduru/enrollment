@@ -26,6 +26,10 @@ class UserResource extends Resource
 
     protected static ?string $label = 'Faculty Staff';
 
+    protected static ?string $pluralLabel = 'Faculty Staff';
+
+    protected static ?string $pluralModelLabel = null;
+
     public static function form(Form $form): Form
     {
         return $form

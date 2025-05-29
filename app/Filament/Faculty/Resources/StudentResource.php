@@ -1,18 +1,16 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Faculty\Resources;
 
-use App\Filament\Resources\StudentResource\Pages;
-use App\Filament\Resources\StudentResource\RelationManagers;
+use App\Filament\Faculty\Resources\StudentResource\Pages;
+use App\Filament\Faculty\Resources\StudentResource\RelationManagers;
 use App\Models\Student;
-use Filament\Actions\CreateAction;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class StudentResource extends Resource
@@ -22,6 +20,8 @@ class StudentResource extends Resource
     protected static ?string $label = 'Student Record';
     
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+
+    protected static ?string $navigationGroup = 'Enrollment';
 
     public static function form(Form $form): Form
     {
@@ -66,7 +66,6 @@ class StudentResource extends Resource
                 Tables\Columns\TextColumn::make('extenstion_name')->searchable(),
                 Tables\Columns\TextColumn::make('enrollments.classroom.level.level')->searchable()->label('Grade Level'),
                 Tables\Columns\TextColumn::make('enrollments.classroom.name')->searchable()->label('Section'),
-                Tables\Columns\TextColumn::make('enrollments.classroom.faculty.name')->label('Adviser'),
                 Tables\Columns\TextColumn::make('enrollments.created_at')->searchable()->label('Enrolled at')->date()->sortable(),
                 Tables\Columns\TextColumn::make('gender'),
                 Tables\Columns\TextColumn::make('type'),
@@ -94,9 +93,9 @@ class StudentResource extends Resource
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
@@ -113,15 +112,14 @@ class StudentResource extends Resource
             'index' => Pages\ListStudents::route('/'),
             'create' => Pages\CreateStudent::route('/create'),
             'edit' => Pages\EditStudent::route('/{record}/edit'),
-            'view' => Pages\ViewStudent::route('/{record}/view'),
-
         ];
     }
 
-    // public static function getEloquentQuery(): Builder
-    // {
-    //     dd(auth()->user()->classes());
-    //     // $student = auth()->user()->students();
-    //     return parent::getEloquentQuery()->where('role', 'faculty');
-    // }
+    public static function getEloquentQuery(): Builder
+    {
+        $faculty = auth()->user();
+        return parent::getEloquentQuery()->whereHas('classes.faculty', function (Builder $query) use ($faculty) {
+                $query->where('faculty_id', 'like', "{$faculty->id}");
+            });
+    }
 }
