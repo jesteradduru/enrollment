@@ -21,13 +21,13 @@ class Dashboard extends \Filament\Pages\Dashboard
             Section::make('Dashboard Filters')->schema([
                 Select::make('school_year')->label('Start of School Year')->options(function(){
                     return SchoolYear::all()->pluck('start_year', 'id');
-                })->selectablePlaceholder(false),
+                }),
                 Select::make('level')->options(function(){
                     return Level::all()->pluck('level', 'id');
-                })->label('Grade Level')->selectablePlaceholder(false),
+                })->label('Grade Level'),
                 Select::make('section')->options(function(Get $get){
                     return Classroom::whereLike('level_id', $get('level'))->pluck('display_name','id');
-                })->selectablePlaceholder(false),
+                }),
             ])->columns(3)
         ]);
     }

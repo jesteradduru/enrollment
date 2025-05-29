@@ -83,7 +83,7 @@ class EnrollmentResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('classroom_id')
-                    ->relationship('classroom', 'name')
+                    ->relationship('classroom', 'display_name')
                     ->label('Section'),
                 Tables\Filters\SelectFilter::make('level')
                     ->relationship('classroom.level', 'level')
