@@ -75,6 +75,10 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsToMany(Classroom::class, 'faculty_classroom', 'faculty_id', 'classroom_id');
     }
 
+    public function createdStudents(){
+        return $this->hasMany(Student::class, 'created_by');
+    }
+
 
     public function canAccessPanel(Panel $panel): bool
     {
@@ -87,6 +91,10 @@ class User extends Authenticatable implements FilamentUser
         }
 
         return false;
+    }
+
+    public function isFaculty(){
+        return $this->role == 'faculty';
     }
 
 }

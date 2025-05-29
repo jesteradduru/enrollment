@@ -117,9 +117,10 @@ class StudentResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        $faculty = auth()->user();
-        return parent::getEloquentQuery()->whereHas('classes.faculty', function (Builder $query) use ($faculty) {
-                $query->where('faculty_id', 'like', "{$faculty->id}");
-            });
+        return parent::getEloquentQuery()->where('created_by', auth()->user()->id);
+        
+        // ->whereHas('classes.faculty', function (Builder $query) use ($faculty) {
+        //         $query->where('faculty_id', 'like', "{$faculty->id}");
+        //     });
     }
 }

@@ -18,11 +18,16 @@ class GenderPieWidget extends ChartWidget
         $schoolYearId = $this->filters['school_year'];
         $section = $this->filters['section'];
         $level = $this->filters['level'];
+        $isFaculty = auth()->user()->role== 'faculty';
 
         $maleStudents = Enrollment::whereLike('classroom_id', "%{$section}%")->whereLike('school_year_id', "%{$schoolYearId}%")
         ->whereHas('classroom', function (Builder $query) use ($level) {
             $query->where('level_id', 'like', "%{$level}%");
         })
+        ->whereHas('classroom.faculty', function (Builder $query) use($isFaculty){
+                if($isFaculty)
+                return $query->where('faculty_id', auth()->user()->id);
+            })
         ->whereHas('student', function (Builder $query) {
             $query->where('gender', 'like', 'male');
         })->get()->count();
@@ -31,6 +36,10 @@ class GenderPieWidget extends ChartWidget
         ->whereHas('classroom', function (Builder $query) use ($level) {
             $query->where('level_id', 'like', "%{$level}%");
         })
+        ->whereHas('classroom.faculty', function (Builder $query) use($isFaculty){
+                if($isFaculty)
+                return $query->where('faculty_id', auth()->user()->id);
+            })
         ->whereHas('student', function (Builder $query) {
             $query->where('gender', 'like', 'female');
         })->get()->count();

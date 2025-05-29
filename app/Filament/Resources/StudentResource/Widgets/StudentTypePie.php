@@ -18,11 +18,19 @@ class StudentTypePie extends ChartWidget
         $schoolYearId = $this->filters['school_year'];
         $section = $this->filters['section'];
         $level = $this->filters['level'];
+        $new = 0;
+        $regular = 0;
+        $transferee = 0;
+        $returnee = 0;
 
 
         $new = Enrollment::whereLike('classroom_id', "%{$section}%")->whereLike('school_year_id', "%{$schoolYearId}%")
         ->whereHas('classroom', function (Builder $query) use ($level) {
             $query->where('level_id', 'like', "%{$level}%");
+        })
+        ->whereHas('classroom.faculty', function (Builder $query){
+            if(auth()->user()->role == 'faculty')
+            return $query->where('faculty_id', auth()->user()->id);
         })
         ->whereHas('student', function (Builder $query) {
             $query->where('type', 'like', 'new');
@@ -32,6 +40,10 @@ class StudentTypePie extends ChartWidget
         ->whereHas('classroom', function (Builder $query) use ($level) {
             $query->where('level_id', 'like', "%{$level}%");
         })
+        ->whereHas('classroom.faculty', function (Builder $query){
+            if(auth()->user()->role == 'faculty')
+            return $query->where('faculty_id', auth()->user()->id);
+        })
         ->whereHas('student', function (Builder $query) {
             $query->where('type', 'like', 'regular');
         })->get()->count();
@@ -40,6 +52,10 @@ class StudentTypePie extends ChartWidget
         ->whereHas('classroom', function (Builder $query) use ($level) {
             $query->where('level_id', 'like', "%{$level}%");
         })
+        ->whereHas('classroom.faculty', function (Builder $query){
+            if(auth()->user()->role == 'faculty')
+            return $query->where('faculty_id', auth()->user()->id);
+        })
         ->whereHas('student', function (Builder $query) {
             $query->where('type', 'like', 'transferee');
         })->get()->count();
@@ -47,6 +63,10 @@ class StudentTypePie extends ChartWidget
         $returnee = Enrollment::whereLike('classroom_id', "%{$section}%")->whereLike('school_year_id', "%{$schoolYearId}%")
         ->whereHas('classroom', function (Builder $query) use ($level) {
             $query->where('level_id', 'like', "%{$level}%");
+        })
+        ->whereHas('classroom.faculty', function (Builder $query){
+            if(auth()->user()->role == 'faculty')
+            return $query->where('faculty_id', auth()->user()->id);
         })
         ->whereHas('student', function (Builder $query) {
             $query->where('type', 'like', 'returnee');

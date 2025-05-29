@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EnrollmentResource extends Resource
@@ -29,20 +30,12 @@ class EnrollmentResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('student_id')
-                    ->relationship('student', 'full_name')
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array =>
-                        Student::where('first_name', 'like', "%{$search}%")
-                            ->orWhere('middle_name', 'like', "%{$search}%")
-                            ->orWhere('last_name', 'like', "%{$search}%")
-                            ->orWhere('extension_name', 'like', "%{$search}%")
-                            ->limit(10)
-                            ->get()
-                            ->mapWithKeys(fn ($student) => [
-                                $student->id => $student->full_name
-                            ])->toArray()
-                    )
-                    ->searchable()
+                    ->relationship(name:'student', modifyQueryUsing: function(Builder $query){
+                        return $query->where('created_by', auth()->user()->id);
+                    })
+                    ->searchable(['first_name', 'last_name', 'middle_name', 'extension_name'])
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->first_name} {$record->middle_name} {$record->last_name}")
+                    ->preload()
                     ->required(),
                 Forms\Components\Select::make('classroom_id')
                     ->label('Section')
@@ -51,20 +44,21 @@ class EnrollmentResource extends Resource
 
                         return $faculty->classrooms()->get()->pluck('display_name', 'id');
                     })
-                    ->selectablePlaceholder(false)
                     ->required(),
                 Forms\Components\Select::make('school_year_id')
-                    ->relationship('schoolYear', 'end_year')
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array =>
-                        \App\Models\SchoolYear::where('start_year', 'like', "%{$search}%")
-                            ->orWhere('end_year', 'like', "%{$search}%")
-                            ->get()
-                            ->mapWithKeys(fn ($sy) => [
-                                $sy->id => $sy->display_name
-                            ])->toArray()
-                    )
-                    ->getOptionLabelUsing(fn ($value): ?string => \App\Models\SchoolYear::find($value)?->display_name)
+                    ->relationship(name: 'schoolYear')
+                    ->getOptionLabelFromRecordUsing(fn (Model $record) => "SY {$record->start_year}-{$record->end_year}")
+                    ->searchable(['start_year', 'end_year'])
+                    ->preload()
+                    // ->getSearchResultsUsing(fn (string $search): array =>
+                    //     \App\Models\SchoolYear::where('start_year', 'like', "%{$search}%")
+                    //         ->orWhere('end_year', 'like', "%{$search}%")
+                    //         ->get()
+                    //         ->mapWithKeys(fn ($sy) => [
+                    //             $sy->id => $sy->display_name
+                    //         ])->toArray()
+                    // )
+                    // ->getOptionLabelUsing(fn ($value): ?string => \App\Models\SchoolYear::find($value)?->display_name)
                     ->required(),
                 Forms\Components\FileUpload::make('documents')->multiple()->directory('enrollments')->openable(),
             ]);

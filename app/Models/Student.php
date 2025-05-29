@@ -21,6 +21,7 @@ class Student extends Model
         'type',
         'last_school_attended',
         'last_school_address',
+        'created_by'
     ];
 
      protected $appends = ['full_name', 'age'];
@@ -46,5 +47,10 @@ class Student extends Model
     public function classes()
     {
         return $this->belongsToMany(Classroom::class, 'enrollments');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

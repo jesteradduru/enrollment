@@ -35,9 +35,19 @@ class DatabaseSeeder extends Seeder
         ]);
 
         Classroom::create([
-            'name' => 'Class A',
+            'display_name' => 'Grade 1 - 1',
+            'name' => '1',
             'level_id' => 1, // Assuming Level ID 1 exists
         ]);
+
+        
+
+        User::factory()->create([
+            'name' => 'Faculty Staff',
+            'email' => 'faculty1@mail.com',
+            'role' => 'faculty',
+        ]);
+
 
         Student::create([
             'first_name' => 'John',
@@ -48,14 +58,7 @@ class DatabaseSeeder extends Seeder
             'gender' => 'male',
             'address' => '123 Main St',
             'type' => 'new',
+            'created_by' => 2
         ]);
-
-        User::factory()->create([
-            'name' => 'Admin User',
-            'email' => 'faculty1@mail.com',
-            'role' => 'faculty',
-        ]);
-
-
     }
 }
