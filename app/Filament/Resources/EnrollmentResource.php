@@ -46,7 +46,7 @@ class EnrollmentResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('classroom_id')
                     ->label('Section')
-                    ->relationship('classroom', 'name')
+                    ->relationship('classroom', 'display_name')
                     ->preload()
                     ->searchable()
                     ->required(),

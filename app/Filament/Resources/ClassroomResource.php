@@ -38,7 +38,8 @@ class ClassroomResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->searchable(),
+                Tables\Columns\TextColumn::make('display_name')->searchable(),
+                // Tables\Columns\TextColumn::make('name')->searchable(),
                 Tables\Columns\TextColumn::make('level.level')->label('Grade level'),
             ])
             ->filters([

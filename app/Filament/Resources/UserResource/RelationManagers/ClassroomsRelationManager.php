@@ -22,7 +22,7 @@ class ClassroomsRelationManager extends RelationManager
             ->schema([
                 Forms\Components\Select::make('classrooms')
                 ->label('Section')
-                ->relationship('classrooms', 'name')
+                ->relationship('classrooms', 'display_name')
                 ->searchable()
                 ->preload()
                 ->required(),
@@ -32,9 +32,9 @@ class ClassroomsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
-            ->recordTitleAttribute('name')
+            ->recordTitleAttribute('display_name')
             ->columns([
-                Tables\Columns\TextColumn::make('name'),
+                Tables\Columns\TextColumn::make('display_name'),
             ])
             ->filters([
                 //
