@@ -21,7 +21,8 @@ class Student extends Model
         'type',
         'last_school_attended',
         'last_school_address',
-        'created_by'
+        'created_by',
+        'school_id'
     ];
 
      protected $appends = ['full_name', 'age'];
@@ -52,5 +53,10 @@ class Student extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function latestEnrollment()
+    {
+        return $this->hasOne(Enrollment::class)->latestOfMany(); // gets latest by created_at
     }
 }

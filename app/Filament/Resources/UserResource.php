@@ -8,6 +8,7 @@ use App\Filament\Resources\UserResource\RelationManagers\ClassesRelationManager;
 use App\Filament\Resources\UserResource\RelationManagers\ClassroomsRelationManager;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,6 +16,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+
+use function Pest\Laravel\options;
 
 class UserResource extends Resource
 {
@@ -24,9 +27,9 @@ class UserResource extends Resource
 
     protected static ?string $navigationGroup = 'Users';
 
-    protected static ?string $label = 'Faculty Staff';
+    protected static ?string $label = 'Teacher';
 
-    protected static ?string $pluralLabel = 'Faculty Staff';
+    // protected static ?string $pluralLabel = 'Faculty Staff';
 
     protected static ?string $pluralModelLabel = null;
 
@@ -59,9 +62,39 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 TextInput::make('password')->password()->revealable()->dehydrated(fn ($state) => filled($state)),
-                Forms\Components\TextInput::make('role')
+                Forms\Components\Select::make('role')
+                    ->options([
+                        'faculty' => 'Teacher',
+                    ])
                     ->default('faculty')
                     ->readOnly(),
+
+
+                Forms\Components\Select::make('classroom_id')
+                            ->label('Advisory Class')
+                             ->relationship('classrooms', 'display_name')
+                            ->searchable()
+                            ->multiple()
+                            ->preload()
+                            ->required(),
+
+
+
+                    // Repeater::make('classrooms')
+                    // ->relationship()
+                    // ->label('Advisory Classes')
+                    // ->schema([
+                    //     Forms\Components\Select::make('classroom_id')
+                    //         ->label('Section')
+                    //          ->relationship('classrooms', 'display_name')
+                    //         ->searchable()
+                    //         ->preload()
+                    //         ->required(),
+                    // ])
+                    // ->collapsible()
+                    // ->columns(2)
+                    // ->columnSpanFull()
+                    // ->required(),
             ]);
     }
 
@@ -116,7 +149,7 @@ class UserResource extends Resource
     public static function getRelations(): array
     {
         return [
-            ClassroomsRelationManager::class
+            // ClassroomsRelationManager::class
         ];
     }
 

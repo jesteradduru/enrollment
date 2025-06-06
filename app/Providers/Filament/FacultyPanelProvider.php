@@ -27,11 +27,12 @@ class FacultyPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->brandName('AUES-Faculty')
+            ->brandName('AUES-Teacher')
             ->favicon(asset('assets/images/logo.png'))
             // ->databaseNotifications()
-            ->id('faculty')
-            ->path('faculty')
+            // ->databaseNotificationsPolling('5s')
+            ->id('teacher')
+            ->path('teacher')
             ->colors([
                 'primary' => Color::Amber,
             ])

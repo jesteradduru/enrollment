@@ -7,7 +7,9 @@ use App\Filament\Resources\StudentResource\RelationManagers;
 use App\Models\Student;
 use Filament\Actions\CreateAction;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -53,6 +55,53 @@ class StudentResource extends Resource
                     ->label('Last School Attended Address')
                     ->visible(fn (Forms\Get $get) => $get('type') === 'transferee')
                     ->required(fn (Forms\Get $get) => $get('type') === 'transferee'),
+
+                // enrollment form
+                //  Forms\Components\Select::make('enrollments.classroom')
+                //     ->label('Section')
+                //     ->relationship('enrollments.classroom', 'display_name')
+                //     ->preload()
+                //     ->searchable()
+                //     ->required(),
+                // Forms\Components\Select::make('enrollments.schoolYear')
+                //     ->relationship('enrollments.schoolYear', 'name')
+                //     ->searchable()
+                //     ->preload()
+                //     ->required(),
+                // Forms\Components\FileUpload::make('enrollments.documents')->multiple()->directory('enrollments')->openable(),
+
+                Repeater::make('enrollments')
+                    ->relationship()
+                    ->label('Enrollment Details')
+                    ->schema([
+                        Forms\Components\Select::make('school_year_id')
+                            ->label('School Year')
+                            ->relationship('schoolYear', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->live()
+                            ->required(),
+
+                        Forms\Components\Select::make('classroom_id')
+                            ->label('Section')
+                             ->relationship('classroom', 'display_name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+
+                        Forms\Components\FileUpload::make('documents')
+                            ->multiple()
+                            ->directory('enrollments')
+                            ->openable()
+                            ->required()
+                            ->columnSpanFull()
+                            ->label('Documents'),
+                    ])
+                    ->collapsible()
+                    ->columns(2)
+                    ->itemLabel(fn ($state) => optional(\App\Models\SchoolYear::find(data_get($state, 'school_year_id')))?->name ?? 'Enrollment')
+                    ->columnSpanFull()
+                    ->required(),
             ]);
     }
 
@@ -60,14 +109,15 @@ class StudentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('school_id')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('last_name')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('first_name')->searchable(),
                 Tables\Columns\TextColumn::make('middle_name')->searchable(),
-                Tables\Columns\TextColumn::make('extenstion_name')->searchable(),
-                Tables\Columns\TextColumn::make('enrollments.classroom.level.level')->searchable()->label('Grade Level'),
-                Tables\Columns\TextColumn::make('enrollments.classroom.name')->searchable()->label('Section'),
-                Tables\Columns\TextColumn::make('enrollments.classroom.faculty.name')->label('Adviser'),
-                Tables\Columns\TextColumn::make('enrollments.created_at')->searchable()->label('Enrolled at')->date()->sortable(),
+                Tables\Columns\TextColumn::make('extension_name')->searchable(),
+                Tables\Columns\TextColumn::make('enrollments.classroom.level.level')->label('Grade Level'),
+                Tables\Columns\TextColumn::make('enrollments.classroom.name')->label('Section'),
+                Tables\Columns\TextColumn::make('enrollments.classroom.faculty.name')->label('Adviser')->toggleable()->toggledHiddenByDefault(),
+                Tables\Columns\TextColumn::make('enrollments.created_at')->label('Enrolled at')->date()->sortable(),
                 Tables\Columns\TextColumn::make('gender'),
                 Tables\Columns\TextColumn::make('type'),
             ])
@@ -75,7 +125,7 @@ class StudentResource extends Resource
                 Tables\Filters\SelectFilter::make('level')->label('Grade Level')
                     ->relationship('enrollments.classroom.level', 'level'),
                 Tables\Filters\SelectFilter::make('classroom')->label('Section')
-                    ->relationship('enrollments.classroom', 'name'),
+                    ->relationship('enrollments.classroom', 'display_name'),
                 Tables\Filters\SelectFilter::make('type')->label('Student Type')
                     ->options([
                         'new' => 'New',
@@ -89,14 +139,15 @@ class StudentResource extends Resource
                         'female' => 'Female',
                     ])
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

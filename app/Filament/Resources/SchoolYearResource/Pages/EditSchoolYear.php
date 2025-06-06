@@ -16,4 +16,12 @@ class EditSchoolYear extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+
+        $data['name'] = "SY {$data['name']}";
+
+        return $data;
+    }
 }

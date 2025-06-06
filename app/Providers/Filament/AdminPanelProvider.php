@@ -30,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('AUES-Admin')
             // ->brandLogo(asset('assets/images/logo.png'))
             ->favicon(asset('assets/images/logo.png'))
+            // ->databaseNotifications()
             ->default()
             ->id('admin')
             ->path('admin')
@@ -73,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
                 'warning' => Color::Orange,
             ])
             ->font('Poppins')
-            ->breadcrumbs(false)
+            // ->breadcrumbs(false)
             ;
     }
 }

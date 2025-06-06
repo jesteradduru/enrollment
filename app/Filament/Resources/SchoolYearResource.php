@@ -25,8 +25,10 @@ class SchoolYearResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('start_year')->numeric()->required(),
-                Forms\Components\TextInput::make('end_year')->numeric()->required(),
+                Forms\Components\TextInput::make('name')->required()->prefix('SY')->placeholder('e.g. 2023-2024')
+                    ->maxLength(9)
+                    ->unique(ignoreRecord: true)
+                    ->label('School Year'),
             ]);
     }
 
@@ -34,8 +36,7 @@ class SchoolYearResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('start_year'),
-                Tables\Columns\TextColumn::make('end_year'),
+                Tables\Columns\TextColumn::make('name'),
             ])
             ->filters([
                 //

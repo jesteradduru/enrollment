@@ -16,7 +16,7 @@ class EnrolleesPerSchoolYearWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $schoolYears = SchoolYear::orderBy('start_year')->get();
+        $schoolYears = SchoolYear::orderBy('name')->get();
         $section = $this->filters['section'];
         $level = $this->filters['level'];
 
@@ -25,7 +25,7 @@ class EnrolleesPerSchoolYearWidget extends ChartWidget
         $data = [];
 
         foreach ($schoolYears as $sy) {
-            $label = "SY {$sy->start_year}-{$sy->end_year}";
+            $label = $sy->name;
             $labels[] = $label;
 
             $data[] = Enrollment::

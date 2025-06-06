@@ -29,7 +29,7 @@ class EnrollmentPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role == 'faculty';
+        return $user->role == 'faculty' || $user->role == 'admin';
     }
 
     /**
@@ -37,7 +37,7 @@ class EnrollmentPolicy
      */
     public function update(User $user, Enrollment $enrollment): bool
     {
-        return $user->role == 'faculty';
+        return $user->role == 'faculty' || $user->role == 'admin';
     }
 
     /**
@@ -45,7 +45,7 @@ class EnrollmentPolicy
      */
     public function delete(User $user): bool
     {
-       return $user->role == 'faculty';
+       return $user->role == 'faculty' || $user->role == 'admin';
     }
 
 }

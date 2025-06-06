@@ -29,7 +29,7 @@ class EnrollmentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('student_id')
+                Forms\Components\Select::make('enrollment.student')
                     ->relationship('student', 'full_name')
                     ->searchable()
                     ->getSearchResultsUsing(fn (string $search): array =>
@@ -43,7 +43,6 @@ class EnrollmentResource extends Resource
                                 $student->id => $student->full_name
                             ])->toArray()
                     )
-                    ->searchable()
                     ->required(),
                 Forms\Components\Select::make('classroom_id')
                     ->label('Section')
@@ -52,19 +51,10 @@ class EnrollmentResource extends Resource
                     ->searchable()
                     ->required(),
                 Forms\Components\Select::make('school_year_id')
-                    ->relationship('schoolYear', 'end_year')
+                    ->relationship('schoolYear', 'name')
                     ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array =>
-                        \App\Models\SchoolYear::where('start_year', 'like', "%{$search}%")
-                            ->orWhere('end_year', 'like', "%{$search}%")
-                            ->get()
-                            ->mapWithKeys(fn ($sy) => [
-                                $sy->id => $sy->display_name
-                            ])->toArray()
-                    )
-                    ->getOptionLabelUsing(fn ($value): ?string => \App\Models\SchoolYear::find($value)?->display_name)
                     ->required(),
-                Forms\Components\FileUpload::make('documents')->multiple()->directory('enrollments')->openable(),
+                Forms\Components\FileUpload::make('documents')->multiple()->directory('enrollments')->openable()->required(),
             ]);
     }
 
@@ -72,13 +62,36 @@ class EnrollmentResource extends Resource
     {
         return $table
             ->columns([
+                 Tables\Columns\TextColumn::make('student.school_id')->label('Schoold ID'),
                 Tables\Columns\TextColumn::make('student.full_name')->label('Student')
-                ->searchable(),
+                ->searchable(query: function (Builder $query, string $search): Builder {
+                    return $query->whereHas('student', function (Builder $query) use ($search) {
+                        $query->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('middle_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('extension_name', 'like', "%{$search}%");
+                    });
+                })
+                // ->getSearchResultsUsing(fn (string $search): array =>
+                //     Student::where('first_name', 'like', "%{$search}%")
+                //         ->orWhere('middle_name', 'like', "%{$search}%")
+                //         ->orWhere('last_name', 'like', "%{$search}%")
+                //         ->orWhere('extension_name', 'like', "%{$search}%")
+                //         ->limit(10)
+                //         ->get()
+                //         ->mapWithKeys(fn ($student) => [
+                //             $student->id => $student->full_name
+                //         ])->toArray()
+                // )
+                ,
                 Tables\Columns\TextColumn::make('student.gender')->label('Gender'),
+                Tables\Columns\TextColumn::make('student.date_of_birth')->label('Birthdate (mm-dd-yyyy)')->date('m-d-Y')->toggleable()->toggledHiddenByDefault(),
+                Tables\Columns\TextColumn::make('student.age')->label('Age')->toggleable()->toggledHiddenByDefault(),
+                Tables\Columns\TextColumn::make('student.address')->label('Address')->toggleable()->toggledHiddenByDefault(),
                 Tables\Columns\TextColumn::make('classroom.level.level')->label('Grade Level'),
                 Tables\Columns\TextColumn::make('classroom.name')->label('Section'),
-                Tables\Columns\TextColumn::make('classroom.faculty.name')->label('Adviser'),
-                Tables\Columns\TextColumn::make('schoolYear.display_name')->label('School Year'),
+                Tables\Columns\TextColumn::make('classroom.faculty.name')->label('Adviser')->toggleable()->toggledHiddenByDefault(),
+                Tables\Columns\TextColumn::make('schoolYear.name')->label('School Year'),
                 Tables\Columns\TextColumn::make('created_at')->label('Enrolled at')->date(),
             ])
             ->filters([
@@ -89,12 +102,22 @@ class EnrollmentResource extends Resource
                     ->relationship('classroom.level', 'level')
                     ->label('Grade Level'),
                 Tables\Filters\SelectFilter::make('school_year_id')
-                    ->relationship('schoolYear', 'start_year')
-                    ->label('Start of School Year'),
-                Tables\Filters\SelectFilter::make('student')
+                    ->relationship('schoolYear', 'name')
+                    ->label('School Year'),
+                Tables\Filters\SelectFilter::make('gender')
                     ->label('Gender')
-                    ->relationship('student', 'gender')
-                    ->preload()
+                    ->options([
+                        'male' => 'Male',
+                        'female' => 'Female',
+                    ])
+                    ->query(function ($query, array $data): Builder {
+                          if (!isset($data['value']) || $data['value'] === '') {
+                                return $query;
+                            }
+                        return $query->whereHas('student', function ($q) use ($data) {
+                            $q->where('gender', $data['value']);
+                        });
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -102,9 +125,9 @@ class EnrollmentResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
             ]);
     }
 
