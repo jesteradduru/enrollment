@@ -24,4 +24,11 @@ class EditSchoolYear extends EditRecord
 
         return $data;
     }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $data['name'] = str_replace('SY ', '', $data['name']);
+
+        return $data;
+    }
 }
