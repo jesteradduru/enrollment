@@ -62,7 +62,7 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 TextInput::make('password')->password()->revealable()->dehydrated(fn ($state) => filled($state)),
-                Forms\Components\Select::make('role')
+                Forms\Components\TextInput::make('role')
                     ->options([
                         'faculty' => 'Teacher',
                     ])
