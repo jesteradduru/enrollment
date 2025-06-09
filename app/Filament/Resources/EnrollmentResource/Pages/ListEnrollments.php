@@ -17,9 +17,9 @@ class ListEnrollments extends ListRecords
     {
         return [
             Actions\CreateAction::make()->label('Register Enrollee'),
-            ExportAction::make()->exports([
-                ExcelExport::make('table')->fromTable()->withFilename(date('Y-m-d') . ' - enrollees'),
-            ]),
+            // ExportAction::make()->exports([
+            //     ExcelExport::make('table')->fromTable()->withFilename(date('Y-m-d') . ' - enrollees'),
+            // ]),
         ];
     }
 }
