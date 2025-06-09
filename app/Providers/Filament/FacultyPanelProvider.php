@@ -27,7 +27,7 @@ class FacultyPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->brandName('AUES-Teacher')
+            ->brandName('Aboriangan Uneg Elementary School')
             ->favicon(asset('assets/images/logo.png'))
             // ->databaseNotifications()
             // ->databaseNotificationsPolling('5s')

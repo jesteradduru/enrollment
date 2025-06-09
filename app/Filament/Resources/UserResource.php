@@ -11,6 +11,7 @@ use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -25,9 +26,9 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
-    protected static ?string $navigationGroup = 'Users';
+    // protected static ?string $navigationGroup = 'Users';
 
-    protected static ?string $label = 'Teacher';
+    protected static ?string $label = 'User';
 
     // protected static ?string $pluralLabel = 'Faculty Staff';
 
@@ -62,9 +63,12 @@ class UserResource extends Resource
                     ->required()
                     ->maxLength(255),
                 TextInput::make('password')->password()->revealable()->dehydrated(fn ($state) => filled($state)),
-                Forms\Components\TextInput::make('role')
-                    ->default('faculty')
-                    ->readOnly(),
+                Forms\Components\Select::make('role')
+                    ->options([
+                        'admin' => 'Administrator',
+                        'faculty' => 'Teacher',
+                    ])
+                    ->live(),
 
 
                 Forms\Components\Select::make('classroom_id')
@@ -73,7 +77,7 @@ class UserResource extends Resource
                             ->searchable()
                             ->multiple()
                             ->preload()
-                            ->required(),
+                            ->hidden(fn (Get $get) => $get('role') !== 'faculty'),
 
 
 
@@ -109,17 +113,31 @@ class UserResource extends Resource
                 //     ->searchable(),
                 // Tables\Columns\TextColumn::make('extension_name')
                 //     ->searchable(),
-                Tables\Columns\TextColumn::make('gender'),
-                Tables\Columns\TextColumn::make('date_of_birth')
+                Tables\Columns\TextColumn::make('gender')
+                     ->formatStateUsing(fn ($state) => match ($state) {
+                        'female' => 'Female',
+                        'male' => 'Male',
+                        default => 'Unknown',
+                    }),
+                Tables\Columns\TextColumn::make('position')
+                    ->searchable(),
+                    Tables\Columns\TextColumn::make('date_of_birth')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('role')
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'admin' => 'Administrator',
+                        'faculty' => 'Teacher',
+                        default => 'Unknown',
+                    })
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('address')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('email_verified_at')
-                    ->dateTime()
-                    ->sortable(),
+                // Tables\Columns\TextColumn::make('email_verified_at')
+                //     ->dateTime()
+                //     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -159,8 +177,8 @@ class UserResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->where('role', 'faculty');
-    }
+    // public static function getEloquentQuery(): Builder
+    // {
+    //     return parent::getEloquentQuery()->where('role', 'faculty');
+    // }
 }

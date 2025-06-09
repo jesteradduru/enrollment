@@ -17,13 +17,13 @@ class CreateStudent extends CreateRecord
         return $data;
     }
 
-    protected function afterCreate(): void
-    {
-        $student = $this->record;
-        $formatted = str_pad($student->id, 4, '0', STR_PAD_LEFT);
+    // protected function afterCreate(): void
+    // {
+    //     $student = $this->record;
+    //     $formatted = str_pad($student->id, 4, '0', STR_PAD_LEFT);
 
-        $student->update([
-            'school_id' => 102937 . $formatted
-        ]);
-    }
+    //     $student->update([
+    //         'school_id' => 102937 . $formatted
+    //     ]);
+    // }
 }

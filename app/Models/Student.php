@@ -25,14 +25,14 @@ class Student extends Model
         'school_id'
     ];
 
-     protected $appends = ['full_name', 'age'];
+     protected $appends = ['age'];
 
-    public function getFullNameAttribute(): string
-    {
-        $middleInitial = $this->middle_name ? strtoupper($this->middle_name[0]) . '.' : '';
-        $extension = $this->extension_name ? ' ' . $this->extension_name : '';
-        return ucfirst("{$this->first_name} {$middleInitial} {$this->last_name}{$extension}");
-    }
+    // public function getFullNameAttribute(): string
+    // {
+    //     $middleInitial = $this->middle_name ? strtoupper($this->middle_name[0]) . '.' : '';
+    //     $extension = $this->extension_name ? ' ' . $this->extension_name : '';
+    //     return ucfirst("{$this->first_name} {$middleInitial} {$this->last_name}{$extension}");
+    // }
 
     public function getAgeAttribute(): ?int
     {

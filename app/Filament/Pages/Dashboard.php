@@ -19,7 +19,7 @@ class Dashboard extends \Filament\Pages\Dashboard
     {
         return $form->schema([
             Section::make('Dashboard Filters')->schema([
-                Select::make('school_year')->label('Start of School Year')->options(function(){
+                Select::make('school_year')->label('School Year')->options(function(){
                     return SchoolYear::all()->pluck('name', 'id');
                 }),
                 Select::make('level')->options(function(){

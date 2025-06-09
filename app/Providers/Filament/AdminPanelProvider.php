@@ -27,7 +27,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->brandName('AUES-Admin')
+            ->brandName('Abariongan Uneg Elementary School')
             // ->brandLogo(asset('assets/images/logo.png'))
             ->favicon(asset('assets/images/logo.png'))
             // ->databaseNotifications()

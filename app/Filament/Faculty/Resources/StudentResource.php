@@ -36,10 +36,10 @@ class StudentResource extends Resource
                 ])->required()
                 ->default('new')
                 ->live(),
-                 Forms\Components\TextInput::make('first_name')->required() ->autocapitalize('words'),
-                Forms\Components\TextInput::make('middle_name') ->autocapitalize('words'),
-                Forms\Components\TextInput::make('last_name')->required() ->autocapitalize('words'),
-                Forms\Components\TextInput::make('extension_name') ->autocapitalize('words'),
+                 Forms\Components\TextInput::make('first_name')->required()->autocapitalize('words'),
+                Forms\Components\TextInput::make('middle_name')->autocapitalize('words'),
+                Forms\Components\TextInput::make('last_name')->required()->autocapitalize('words'),
+                Forms\Components\TextInput::make('extension_name')->autocapitalize('words'),
                 Forms\Components\Select::make('gender')->options([
                     'male' => 'Male',
                     'female' => 'Female'
@@ -55,80 +55,65 @@ class StudentResource extends Resource
                     ->visible(fn (Forms\Get $get) => $get('type') === 'transferee')
                     ->required(fn (Forms\Get $get) => $get('type') === 'transferee'),
 
-                // enrollment form
-                //  Forms\Components\Select::make('enrollments.classroom')
-                //     ->label('Section')
-                //     ->relationship('enrollments.classroom', 'display_name')
-                //     ->preload()
-                //     ->searchable()
+
+                // Repeater::make('enrollments')
+                //     ->relationship()
+                //     ->label('Enrollment Details')
+                //     ->schema([
+                //         Forms\Components\Select::make('school_year_id')
+                //             ->label('School Year')
+                //             ->relationship('schoolYear', 'name')
+                //             ->searchable()
+                //             ->preload()
+                //             ->live()
+                //             ->required(),
+
+                //         Forms\Components\Select::make('classroom_id')
+                //             ->label('Section')
+                //              ->relationship('classroom', 'display_name')
+                //             ->searchable()
+                //             ->preload()
+                //             ->required(),
+
+                //         Forms\Components\FileUpload::make('documents')
+                //             ->multiple()
+                //             ->directory('enrollments')
+                //             ->openable()
+                //             ->required()
+                //             ->columnSpanFull()
+                //             ->label('Documents'),
+                //     ])
+                //     ->collapsible()
+                //     ->columns(2)
+                //     ->itemLabel(fn ($state) => optional(\App\Models\SchoolYear::find(data_get($state, 'school_year_id')))?->name ?? 'Enrollment')
+                //     ->columnSpanFull()
                 //     ->required(),
-                // Forms\Components\Select::make('enrollments.schoolYear')
-                //     ->relationship('enrollments.schoolYear', 'name')
-                //     ->searchable()
-                //     ->preload()
-                //     ->required(),
-                // Forms\Components\FileUpload::make('enrollments.documents')->multiple()->directory('enrollments')->openable(),
-
-                Repeater::make('enrollments')
-                    ->relationship()
-                    ->label('Enrollment Details')
-                    ->schema([
-                        Forms\Components\Select::make('school_year_id')
-                            ->label('School Year')
-                            ->relationship('schoolYear', 'name')
-                            ->searchable()
-                            ->preload()
-                            ->live()
-                            ->required(),
-
-                        Forms\Components\Select::make('classroom_id')
-                            ->label('Section')
-                            ->relationship('classroom', 'display_name')
-                            ->options(function (){
-                                return auth()->user()->classrooms()->pluck('display_name', 'classroom_id');
-                            })
-                            ->searchable()
-                            ->preload()
-                            ->required(),
-
-                        Forms\Components\FileUpload::make('documents')
-                            ->multiple()
-                            ->directory('enrollments')
-                            ->openable()
-                            ->required()
-                            ->columnSpanFull()
-                            ->label('Documents'),
-                    ])
-                    ->collapsible()
-                    ->columns(2)
-                    ->itemLabel(fn ($state) => optional(\App\Models\SchoolYear::find(data_get($state, 'school_year_id')))?->name ?? 'Enrollment')
-                    ->columnSpanFull()
-                    ->required(),
             ]);
     }
-
+    
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('school_id')->label('School ID')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('school_id')->searchable()->sortable()->label('Learner\'s ID'),
+                Tables\Columns\TextColumn::make('enrollments.classroom.level.level')->label('Code'),
                 Tables\Columns\TextColumn::make('last_name')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('first_name')->searchable(),
                 Tables\Columns\TextColumn::make('middle_name')->searchable(),
                 Tables\Columns\TextColumn::make('extension_name')->searchable(),
-                Tables\Columns\TextColumn::make('gender'),
-                Tables\Columns\TextColumn::make('latestEnrollment.classroom.level.level')->searchable()->label('Grade Level'),
-                Tables\Columns\TextColumn::make('latestEnrollment.classroom.name')->searchable()->label('Section'),
-                Tables\Columns\TextColumn::make('latestEnrollment.classroom.faculty.name')->label('Adviser')->toggleable()->toggledHiddenByDefault(),
-                Tables\Columns\TextColumn::make('latestEnrollment.created_at')->searchable()->label('Enrolled at')->date()->sortable(),
+                Tables\Columns\TextColumn::make('enrollments.classroom.level.type')->label('Level'),
+                Tables\Columns\TextColumn::make('enrollments.classroom.level.grade')->label('Grade'),
+                Tables\Columns\TextColumn::make('enrollments.classroom.name')->label('Section'),
+                Tables\Columns\TextColumn::make('enrollments.classroom.faculty.name')->label('Adviser')->toggleable()->toggledHiddenByDefault(),
+                Tables\Columns\TextColumn::make('enrollments.created_at')->label('Date Enrolled')->date()->sortable(),
                 Tables\Columns\TextColumn::make('gender'),
                 Tables\Columns\TextColumn::make('type'),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('level')->label('Grade Level')
-                    ->relationship('latestEnrollment.classroom.level', 'level'),
+                Tables\Filters\SelectFilter::make('level')->label('Code')
+                    ->relationship('enrollments.classroom.level', 'level'),
                 Tables\Filters\SelectFilter::make('classroom')->label('Section')
-                    ->relationship('latestEnrollment.classroom', 'name'),
+                    ->relationship('enrollments.classroom', 'display_name'),
                 Tables\Filters\SelectFilter::make('type')->label('Student Type')
                     ->options([
                         'new' => 'New',

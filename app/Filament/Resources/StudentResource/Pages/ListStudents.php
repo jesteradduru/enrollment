@@ -17,9 +17,9 @@ class ListStudents extends ListRecords
     {
         return [
             Actions\CreateAction::make(),
-           ExportAction::make()->exports([
-                ExcelExport::make('table')->fromTable()->withFilename(date('Y-m-d') . ' - students'),
-            ]),
+        //    ExportAction::make()->exports([
+        //         ExcelExport::make('table')->fromTable()->withFilename(date('Y-m-d') . ' - students'),
+        //     ]),
         ];
     }
 }

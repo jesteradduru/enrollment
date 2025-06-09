@@ -27,7 +27,10 @@ class LevelResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('level')->required(),
+                Forms\Components\TextInput::make('level')->required()->label('Code'),
+                Forms\Components\TextInput::make('grade')->nullable(),
+                // Forms\Components\TextInput::make('code')->required(),
+                Forms\Components\TextInput::make('type')->required()->default('Elementary'),
             ]);
     }
 
@@ -35,7 +38,8 @@ class LevelResource extends Resource
     {
         return $table
             ->columns([
-                 Tables\Columns\TextColumn::make('level')->searchable(),
+                 Tables\Columns\TextColumn::make('level')->searchable()->label('Code'),
+                 Tables\Columns\TextColumn::make('grade')->searchable(),
             ])
             ->filters([
                 //

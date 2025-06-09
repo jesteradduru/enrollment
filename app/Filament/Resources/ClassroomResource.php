@@ -7,7 +7,10 @@ use App\Filament\Resources\ClassroomResource\RelationManagers;
 use App\Filament\Resources\ClassroomResource\RelationManagers\FacultyRelationManager;
 // use App\Filament\Resources\ClassroomResource\RelationManagers\FacultyRelationManager;
 use App\Models\Classroom;
+use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -31,6 +34,20 @@ class ClassroomResource extends Resource
                     Forms\Components\Select::make('level_id')
                         ->relationship('level', 'level')
                         ->required(),
+
+                    // Repeater::make('faculty')
+                    //     ->label('Assigned Faculty')
+                    //     ->relationship('faculty') // your belongsToMany() in Classroom model
+                    //     ->schema([
+                    //         Select::make('id')
+                    //             ->label('Faculty Member')
+                    //             ->options(User::query()->where('role', 'faculty')->pluck('name', 'id'))
+                    //             ->searchable()
+                    //             ->required(),
+                    //     ])
+                    //     ->defaultItems(1)
+                    //     ->addActionLabel('Add Faculty')
+                    //     ->columns(1),
             ]);
     }
 

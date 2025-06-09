@@ -15,12 +15,12 @@ class EditEnrollment extends EditRecord
 {
     protected static string $resource = EnrollmentResource::class;
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\DeleteAction::make(),
-        ];
-    }
+    // protected function getHeaderActions(): array
+    // {
+    //     return [
+    //         Actions\DeleteAction::make(),
+    //     ];
+    // }
 
     protected function handleRecordCreation(array $data): Model
     {
@@ -43,26 +43,36 @@ class EditEnrollment extends EditRecord
         return static::getModel()::create($data);
     }
 
-    $currentSY = SchoolYear::find($schoolYearId);
-    if (!$currentSY) return static::getModel()::create($data);
+    // $currentSY = SchoolYear::find($schoolYearId);
+    // if (!$currentSY) return static::getModel()::create($data);
 
-    $lastSY = SchoolYear::where('start_year', $currentSY->start_year - 1)->first();
-    $lastSYId = $lastSY?->id;
+    // $lastSY = SchoolYear::where('start_year', $currentSY->start_year - 1)->first();
+    // $lastSYId = $lastSY?->id;
 
-    $enrolledLastYear = Enrollment::where('student_id', $studentId)
-        ->where('school_year_id', $lastSYId)
-        ->exists();
+    // $enrolledLastYear = Enrollment::where('student_id', $studentId)
+    //     ->where('school_year_id', $lastSYId)
+    //     ->exists();
 
-    $previousEnrollments = Enrollment::where('student_id', $studentId)
-        ->where('school_year_id', '<', $schoolYearId)
-        ->exists();
+    // $previousEnrollments = Enrollment::where('student_id', $studentId)
+    //     ->where('school_year_id', '<', $schoolYearId)
+    //     ->exists();
 
-    if ($enrolledLastYear) {
-        Student::where('id', $studentId)->update(['type' => 'regular']);
-    } elseif (!$enrolledLastYear && $previousEnrollments) {
-        Student::where('id', $studentId)->update(['type' => 'returnee']);
-    }
+    // if ($enrolledLastYear) {
+    //     Student::where('id', $studentId)->update(['type' => 'regular']);
+    // } elseif (!$enrolledLastYear && $previousEnrollments) {
+    //     Student::where('id', $studentId)->update(['type' => 'returnee']);
+    // }
 
         return static::getModel()::create($data);
+    }
+
+    protected function afterSave(): void
+    {
+        $student = Student::find($this->record->student_id);
+        $formatted = str_pad($student->id, 4, '0', STR_PAD_LEFT);
+
+        $student->update([
+            'school_id' => 10293723 . $formatted
+        ]);
     }
 }
